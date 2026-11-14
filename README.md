@@ -2,8 +2,6 @@
 
 **[English](#english) | [Українська](#українська)**
 
-> 🤖 Deployed by AI agent **Claude Opus 5.5** (Anthropic, Claude Code) · Розгорнуто AI-агентом **Claude Opus 5.5** (Anthropic, Claude Code)
-
 Source project: <https://github.com/fraspess/Tiktok_Clone> (original description: [README.project.md](README.project.md), [README.uk.md](README.uk.md)).
 
 ---
@@ -27,6 +25,37 @@ This repository is a copy of the TikTok Clone project plus the files I added to 
 | Docker | Docker Engine 29.9 + Compose plugin v5.7 |
 | Application URL | **<https://172.14.50.81>** (port 443, HTTP 80 redirects to HTTPS) |
 | Demo login | `string` / `String!1` (admin, from the project's seed data) |
+
+### Architecture
+
+```mermaid
+flowchart LR
+    user["Browser"] -- "HTTPS :443<br/>(HTTP :80 → 301)" --> nginx
+    subgraph vm["VM 1007serStep · 172.14.50.81 · Docker network tiktok_network_local"]
+        nginx["frontend<br/>nginx + React (Vite build)<br/>:80 / :443"]
+        api["api<br/>.NET 10<br/>:8080 → 127.0.0.1"]
+        vp["video_processor<br/>.NET + FFmpeg"]
+        db[("db<br/>PostgreSQL :5432<br/>internal only")]
+        redis[("redis :6379<br/>internal only")]
+        mq["rabbitMQ<br/>AMQP :5672 internal only<br/>UI :15672 → 127.0.0.1"]
+        vol[("volume api_uploads_local<br/>/app/local-storage")]
+        nginx -- "/api /uploads /avatars<br/>/swagger /health" --> api
+        nginx -- "/hubs/* WebSocket<br/>(SignalR)" --> api
+        api --> db
+        api --> redis
+        api -- "start processing" --> mq
+        mq -- "start processing" --> vp
+        vp -- "progress / done / failed" --> mq
+        mq -- "progress / done / failed" --> api
+        api --- vol
+        vp --- vol
+    end
+```
+
+- Only ports **80 and 443** are open to the outside. Everything else talks over the internal Docker network by service name (`api`, `db`, `redis`, `rabbitMQ`).
+- `api` (8080) and the RabbitMQ panel (15672) are bound to `127.0.0.1` and are reachable only from the VM itself (for example, through an SSH tunnel).
+- Uploading a video: the browser sends the file through nginx to `api`, which saves it to the shared volume and publishes a job to RabbitMQ. `video_processor` takes the job, converts the video to HLS (`.m3u8` + `.ts`) with FFmpeg in the same volume, and sends progress back through RabbitMQ. `api` pushes it to the browser over SignalR.
+- Media (`/uploads`, `/avatars`) are served by `api` from the volume, behind nginx.
 
 ### 1. Analyzing the project
 
@@ -142,6 +171,37 @@ docker compose $F down                          # stop (data volumes are kept)
 | Docker | Docker Engine 29.9 + Compose plugin v5.7 |
 | Адреса застосунку | **<https://172.14.50.81>** (порт 443, з HTTP 80 перенаправляє на HTTPS) |
 | Тестовий вхід | `string` / `String!1` (адмін, з тестових даних проєкту) |
+
+### Архітектура
+
+```mermaid
+flowchart LR
+    user["Браузер"] -- "HTTPS :443<br/>(HTTP :80 → 301)" --> nginx
+    subgraph vm["VM 1007serStep · 172.14.50.81 · Docker network tiktok_network_local"]
+        nginx["frontend<br/>nginx + React (Vite build)<br/>:80 / :443"]
+        api["api<br/>.NET 10<br/>:8080 → 127.0.0.1"]
+        vp["video_processor<br/>.NET + FFmpeg"]
+        db[("db<br/>PostgreSQL :5432<br/>лише всередині")]
+        redis[("redis :6379<br/>лише всередині")]
+        mq["rabbitMQ<br/>AMQP :5672 лише всередині<br/>UI :15672 → 127.0.0.1"]
+        vol[("volume api_uploads_local<br/>/app/local-storage")]
+        nginx -- "/api /uploads /avatars<br/>/swagger /health" --> api
+        nginx -- "/hubs/* WebSocket<br/>(SignalR)" --> api
+        api --> db
+        api --> redis
+        api -- "старт обробки" --> mq
+        mq -- "старт обробки" --> vp
+        vp -- "прогрес / готово / помилка" --> mq
+        mq -- "прогрес / готово / помилка" --> api
+        api --- vol
+        vp --- vol
+    end
+```
+
+- Назовні відкриті лише порти **80 і 443**. Усі інші сервіси спілкуються у внутрішній Docker-мережі за іменами (`api`, `db`, `redis`, `rabbitMQ`).
+- `api` (8080) і панель RabbitMQ (15672) прив'язані до `127.0.0.1`, тому доступні лише з самої VM (наприклад, через SSH-тунель).
+- Завантаження відео: браузер через nginx відправляє файл до `api`, той зберігає його у спільний volume і публікує завдання в RabbitMQ. `video_processor` бере завдання, FFmpeg-ом перетворює відео в HLS (`.m3u8` + `.ts`) у тому ж volume і надсилає прогрес назад через RabbitMQ. `api` передає його в браузер через SignalR.
+- Медіа (`/uploads`, `/avatars`) віддає `api` з volume, через nginx.
 
 ### 1. Аналіз проєкту
 
