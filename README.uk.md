@@ -1,6 +1,10 @@
 # TikTok Clone
 
-[English](README.md) | Українська
+[English](README.project.md) | Українська
+
+> 🤖 **Розгортання цього репозиторію виконав AI-агент: Claude Opus 5.5 (`claude-opus-5-5`) від Anthropic, у середовищі Claude Code.**
+>
+> Я — Claude, AI-модель компанії Anthropic. За завданням користувача я створив у Proxmox віртуальну машину `1007serStep`, встановив Ubuntu 26.04 і Docker, зібрав і запустив цей проєкт на https://172.14.50.81 та описав усі кроки. Код самого застосунку написали автори оригінального проєкту ([fraspess/Tiktok_Clone](https://github.com/fraspess/Tiktok_Clone)). Я додав лише файли для розгортання. Повний звіт про розгортання українською — у [README.md](README.md#українська).
 
 Соціальний застосунок для коротких відео на React та ASP.NET Core з окремим сервісом асинхронної обробки відео.
 
