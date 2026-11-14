@@ -1,0 +1,26 @@
+﻿using Application.Dtos.Comment;
+using Domain.Entities.Comment;
+using Microsoft.Extensions.Configuration;
+
+namespace Application.Extensions;
+
+public static class CommentQueryExtensions
+{
+    // include author
+    public static IQueryable<CommentProjectionDto> ToProjectionDto(this IQueryable<CommentEntity> query,
+        Guid? currentUserId)
+    {
+        return query.Select(c => new CommentProjectionDto
+        {
+            Id = c.Id,
+            Text = c.Text,
+            RepliesCount = c.Replies.Count,
+            AuthorUsername = "@" + c.Author.UserName,
+            IsLiked = c.CommentLikes.Any(l => currentUserId.HasValue && l.UserId == currentUserId),
+            AuthorId = c.Author.Id,
+            LikesCount = c.CommentLikes.Count,
+            CreatedAt = c.CreatedAt,
+            IsOwn = currentUserId.HasValue && currentUserId == c.UserId
+        });
+    }
+}

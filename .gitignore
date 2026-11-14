@@ -1,0 +1,7 @@
+front/.env
+backups/
+certbot/
+.env_server
+.env
+.idea
+images/
