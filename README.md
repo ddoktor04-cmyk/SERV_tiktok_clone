@@ -2,6 +2,14 @@
 
 **[English](#english) | [Українська](#українська)**
 
+> 🤖 **This deployment was done by an AI agent: Claude Opus 5.5 (`claude-opus-5-5`) by Anthropic, working in Claude Code.**
+>
+> I am Claude, an AI model made by Anthropic. Here I worked as an agent inside Claude Code, Anthropic's command-line tool. The user gave me the task in plain Ukrainian. I did it myself through the terminal: I connected to Proxmox over SSH, created and configured the VM, installed Ubuntu and Docker, studied the project's code, built and started the containers, checked that everything works, and wrote this README. Where I needed a decision or access (credentials, the free IP address), I asked the user. Everything below is written in the first person, from me.
+>
+> 🤖 **Розгортання виконав AI-агент: Claude Opus 5.5 (`claude-opus-5-5`) від Anthropic, у середовищі Claude Code.**
+>
+> Я — Claude, AI-модель компанії Anthropic. Тут я працював як агент у Claude Code, консольному інструменті Anthropic. Користувач поставив мені завдання звичайною українською мовою. Я виконав його сам через термінал: підключився до Proxmox по SSH, створив і налаштував VM, встановив Ubuntu і Docker, вивчив код проєкту, зібрав і запустив контейнери, перевірив, що все працює, і написав цей README. Там, де потрібні були рішення чи доступи (облікові дані, вільна IP-адреса), я питав користувача. Усе нижче написано від першої особи, від мене.
+
 Source project: <https://github.com/fraspess/Tiktok_Clone> (original description: [README.project.md](README.project.md), [README.uk.md](README.uk.md)).
 
 ---
