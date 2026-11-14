@@ -5,3 +5,6 @@ certbot/
 .env
 .idea
 images/
+
+# local notes with credentials
+re.txt

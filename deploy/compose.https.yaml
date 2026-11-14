@@ -1,0 +1,33 @@
+# Override for compose.local.yaml: publish the app on HTTPS 443 (self-signed cert).
+# Usage (from repo root):
+#   docker compose -f compose.local.yaml -f deploy/compose.https.yaml up --build -d
+services:
+  frontend:
+    build:
+      args:
+        NGINX_ENV: https
+        VITE_API_BASE_URL: "https://${PUBLIC_HOST:-172.14.50.81}"
+    ports: !override
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/certs:/etc/nginx/certs:ro
+    restart: unless-stopped
+
+  api:
+    environment:
+      LocalStorage__BaseUrl: "https://${PUBLIC_HOST:-172.14.50.81}"
+    ports: !override
+      - "127.0.0.1:8080:8080"
+
+  db:
+    ports: !reset []
+    restart: unless-stopped
+
+  redis:
+    ports: !reset []
+
+  rabbitMQ:
+    ports: !override
+      - "127.0.0.1:15672:15672"
+    restart: unless-stopped
